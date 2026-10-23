@@ -1,0 +1,59 @@
+# Replays past incidents against the review agents. A change to the reviewer that lowers
+# recall or raises false positives fails here and should not merge.
+#
+# Runs on PRs that touch the review system, weekly (models and prompts drift), and on demand.
+
+name: review-evals
+
+on:
+  pull_request:
+    paths:
+      - ".claude/**"
+      - "CLAUDE.md"
+      - "REVIEW.md"
+      - ".github/review-prompts/**"
+      - "evals/**"
+      - "review-policy.toml"
+  schedule:
+    - cron: "17 6 * * 1"
+  workflow_dispatch:
+    inputs:
+      runs:
+        description: "Runs per case (majority vote)"
+        default: "3"
+
+permissions:
+  contents: read
+
+jobs:
+  evals:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      # Here we DO want the PR's version of the prompts: they are what's under test.
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install Claude Code
+        run: |
+          curl -fsSL https://claude.ai/install.sh | bash
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+      - name: Baseline comes from the base branch, not the PR
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            git show "${{ github.event.pull_request.base.sha }}:evals/baseline.json" > "$RUNNER_TEMP/baseline.json" \
+              || cp evals/baseline.json "$RUNNER_TEMP/baseline.json"
+          else
+            cp evals/baseline.json "$RUNNER_TEMP/baseline.json"
+          fi
+      - name: Run evals
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          CLAUDE_REVIEW_MODEL: ${{ vars.CLAUDE_REVIEW_MODEL }}
+        run: |
+          python3 evals/run_evals.py --live \
+            --runs "${{ inputs.runs || '3' }}" \
+            --baseline "$RUNNER_TEMP/baseline.json"

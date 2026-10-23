@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "permissions": {
+    "deny": [
+      "Edit(tests/acceptance/**)",
+      "Edit(evals/incidents/**)",
+      "Edit(evals/baseline.json)",
+      "Edit(review-policy.toml)",
+      "Edit(REVIEW.md)",
+      "Edit(.github/**)",
+      "Edit(.claude/settings.json)",
+      "Edit(.claude/hooks/**)",
+      "Bash(git push --force *)",
+      "Bash(git push -f *)",
+      "Bash(git commit --no-verify *)"
+    ]
+  },
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash",
+            "args": ["${CLAUDE_PROJECT_DIR}/.claude/hooks/verify-on-stop.sh"],
+            "timeout": 900,
+            "statusMessage": "Running make verify before finishing"
+          }
+        ]
+      }
+    ]
+  }
+}
