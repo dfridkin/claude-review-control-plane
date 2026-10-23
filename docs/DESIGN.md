@@ -64,6 +64,7 @@ The original post describes things this template leaves to you:
 
 - **Converging review loops:** a round cap and diff-only re-review after the first few passes, so
   agent authors and reviewers don't ping-pong. `/pre-pr` caps itself at one re-review; CI review doesn't.
+- **Verifier voting:** the post uses several verifiers per finding; this template asks for one.
 - **Daily eval runs.** `review-evals.yml` runs weekly and on reviewer changes. Change the cron if you want daily.
 - **Feature flags and staged rollout.** Use your own deploy tooling; see `docs/SETUP.md`.
 
