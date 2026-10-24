@@ -10,10 +10,10 @@ leaves out. Start with the [README](../README.md) and [SETUP.md](SETUP.md).
 | 0 | Baseline | Revert share, incident-linked PRs, review rounds, time to merge, human-approved share | `scripts/review_metrics.py`, `review-metrics.yml` |
 | 1 | Incident evals | Past incidents replayed against the reviewer; changes that lower the score don't merge | `evals/`, `review-evals.yml` |
 | 2 | Pre-PR | Stop hook blocks "done" while `make verify` fails; `/pre-pr` runs a fresh-context review subagent | `.claude/hooks/`, `.claude/skills/pre-pr/`, `.claude/agents/` |
-| 3 | PR review | Parallel `bug-hunter` agents, then a `finding-verifier` per candidate; only confirmed findings get posted. A round cap flags stuck PRs `needs-human` and notifies Slack | `claude-review.yml`, `human-review-notify.yml`, `.claude/agents/` |
-| 4 | Security | Blocking review: `pass`, `escalate` (route to a human), or `fail` (block) | `review-pipeline.yml`, `.github/review-prompts/security.md` |
+| 3 | PR review | Parallel `bug-hunter` agents, then a `finding-verifier` per candidate; only confirmed findings get posted. A round cap flags stuck PRs `needs-human` and posts to the needs-human Slack channel | `claude-review.yml`, `human-review-notify.yml`, `.claude/agents/` |
+| 4 | Security | Blocking review: `pass`, `escalate` (route to a human), or `fail` (block). Anything but `pass` posts to the security Slack channel | `review-pipeline.yml`, `.github/review-prompts/security.md` |
 | 5 | CI | Lint, types, tests, coverage floor. Fails until you wire it | `ci.yml`, `Makefile` |
-| 6 | Human gate | Risk tier from paths and size; model output can only escalate | `review-policy.toml`, `scripts/risk_classify.py`, `scripts/review_gate.py` |
+| 6 | Human gate | Risk tier from paths and size; model output can only escalate. A PR newly waiting on a person posts to the approvals Slack channel | `review-policy.toml`, `scripts/risk_classify.py`, `scripts/review_gate.py` |
 | 7 | Release | Merge queue, flags, staged rollout, fast rollback | your deploy tooling |
 
 ### Risk tiers

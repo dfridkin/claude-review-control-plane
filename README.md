@@ -25,11 +25,13 @@ This repo gives you that setup in layers:
    fresh-context review subagent and drafts an evidence-first PR description.
 2. **AI review.** Parallel bug-hunting subagents, then a verifier that tries to refute each finding.
    Only confirmed findings get posted. A PR still blocked after three rounds gets a `needs-human`
-   label and a Slack notice.
-3. **Security review.** Can pass, route to a human, or block.
+   label and a notice in a Slack channel for stuck PRs.
+3. **Security review.** Can pass, route to a human, or block. Anything but a pass posts to a
+   security Slack channel.
 4. **Required CI.** Lint, types, tests, coverage floor.
 5. **Risk gate.** The change's paths and size set the tier. Docs merge on automated checks; ordinary
    code needs one person; auth, billing, infra, and the review system itself need a code owner.
+   PRs waiting on a person post to an approvals Slack channel.
 6. **Evals and metrics.** Past incidents are replayed against the reviewer, and revert share is
    tracked so you know whether lighter review is safe.
 
