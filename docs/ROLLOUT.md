@@ -17,6 +17,7 @@ Each phase has an exit criterion. Don't advance on a calendar; advance on the nu
 
 - Turn on `claude-review.yml` (advisory, `CLAUDE_REVIEW_BLOCK_ON=none`) and `review-pipeline.yml`.
 - Keep your current human review rules unchanged. Make `review-gate` visible but NOT required.
+- Set up the Slack webhook for `needs-human` (SETUP.md, section 3) so stuck PRs reach a person.
 - Every week: read the findings humans dismissed. Each confirmed false positive becomes a control
   case; each bug the agents missed and a human caught becomes an incident case.
 

@@ -24,7 +24,8 @@ This repo gives you that setup in layers:
 1. **Pre-PR.** A Stop hook blocks Claude from finishing while `make verify` fails. `/pre-pr` runs a
    fresh-context review subagent and drafts an evidence-first PR description.
 2. **AI review.** Parallel bug-hunting subagents, then a verifier that tries to refute each finding.
-   Only confirmed findings get posted.
+   Only confirmed findings get posted. A PR still blocked after three rounds gets a `needs-human`
+   label and a Slack notice.
 3. **Security review.** Can pass, route to a human, or block.
 4. **Required CI.** Lint, types, tests, coverage floor.
 5. **Risk gate.** The change's paths and size set the tier. Docs merge on automated checks; ordinary

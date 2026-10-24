@@ -10,7 +10,7 @@ leaves out. Start with the [README](../README.md) and [SETUP.md](SETUP.md).
 | 0 | Baseline | Revert share, incident-linked PRs, review rounds, time to merge, human-approved share | `scripts/review_metrics.py`, `review-metrics.yml` |
 | 1 | Incident evals | Past incidents replayed against the reviewer; changes that lower the score don't merge | `evals/`, `review-evals.yml` |
 | 2 | Pre-PR | Stop hook blocks "done" while `make verify` fails; `/pre-pr` runs a fresh-context review subagent | `.claude/hooks/`, `.claude/skills/pre-pr/`, `.claude/agents/` |
-| 3 | PR review | Parallel `bug-hunter` agents, then a `finding-verifier` per candidate; only confirmed findings get posted | `claude-review.yml`, `.claude/agents/` |
+| 3 | PR review | Parallel `bug-hunter` agents, then a `finding-verifier` per candidate; only confirmed findings get posted. A round cap flags stuck PRs `needs-human` and notifies Slack | `claude-review.yml`, `human-review-notify.yml`, `.claude/agents/` |
 | 4 | Security | Blocking review: `pass`, `escalate` (route to a human), or `fail` (block) | `review-pipeline.yml`, `.github/review-prompts/security.md` |
 | 5 | CI | Lint, types, tests, coverage floor. Fails until you wire it | `ci.yml`, `Makefile` |
 | 6 | Human gate | Risk tier from paths and size; model output can only escalate | `review-policy.toml`, `scripts/risk_classify.py`, `scripts/review_gate.py` |
@@ -62,8 +62,9 @@ The PR under review must not be able to change the rules it's judged by.
 
 The original post describes things this template leaves to you:
 
-- **Converging review loops:** a round cap and diff-only re-review after the first few passes, so
-  agent authors and reviewers don't ping-pong. `/pre-pr` caps itself at one re-review; CI review doesn't.
+- **Diff-only re-review:** the post narrows later review passes to what changed since the last one,
+  so agent authors and reviewers don't ping-pong. This template has the round cap (`needs-human`
+  after `REVIEW_ROUND_CAP` stuck rounds) but re-reviews the full diff on every push.
 - **Verifier voting:** the post uses several verifiers per finding; this template asks for one.
 - **Daily eval runs.** `review-evals.yml` runs weekly and on reviewer changes. Change the cron if you want daily.
 - **Feature flags and staged rollout.** Use your own deploy tooling; see `docs/SETUP.md`.
@@ -88,7 +89,7 @@ The original post describes things this template leaves to you:
   skills/pre-pr/SKILL.md   /pre-pr: verify, classify, fresh review, evidence-first PR body
   rules/                   testing, PR scope, security (path-scoped)
 .github/
-  workflows/               ci, claude-review, review-pipeline, review-gate-refresh, review-evals, review-metrics
+  workflows/               ci, claude-review, review-pipeline, review-gate-refresh, human-review-notify, review-evals, review-metrics
   review-prompts/          bug-hunt.md, security.md + JSON schemas (shared by CI and evals)
   CODEOWNERS               generated from review-policy.toml
   pull_request_template.md
